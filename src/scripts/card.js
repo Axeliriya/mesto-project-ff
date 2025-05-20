@@ -21,3 +21,7 @@ export const createCard = ({ name, link }, onDelete, onImageClick, onLike) => {
 export const deleteCard = (card) => {
   card.remove();
 };
+
+export const handleLikeClick = (button) => {
+  button.classList.toggle("card__like-button_is-active");
+};

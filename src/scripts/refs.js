@@ -1,12 +1,16 @@
 const refs = {
   cardList: document.querySelector(".places__list"),
 
-  popupEdit: document.querySelector(".popup_type_edit"),
-  popupNewCard: document.querySelector(".popup_type_new-card"),
-  popupImage: document.querySelector(".popup_type_image"),
+  popupTypeEdit: document.querySelector(".popup_type_edit"),
+  popupTypeNewCard: document.querySelector(".popup_type_new-card"),
+  popupTypeImage: document.querySelector(".popup_type_image"),
+
+  popupImage: document.querySelector(".popup__image"),
+  popupCaption: document.querySelector(".popup__caption"),
 
   editButton: document.querySelector(".profile__edit-button"),
   addButton: document.querySelector(".profile__add-button"),
+  closeButtons: document.querySelectorAll(".popup__close"),
 
   profileName: document.querySelector(".profile__title"),
   profileDescription: document.querySelector(".profile__description"),
