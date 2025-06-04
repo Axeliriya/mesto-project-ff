@@ -1,27 +1,100 @@
+import { api } from "./api.js";
 import { createCard, deleteCard, handleLikeClick } from "./card.js";
 import { openModal, closeModal } from "./modal.js";
 import refs from "./refs.js";
+import { clearValidation, validateFormOnOpen } from "./validation.js";
+import validationConfig from "./validationConfig.js";
+import { state } from "./state.js";
 
-export const handleFormNewCardSubmit = (evt) => {
+export const handleFormNewCardSubmit = (evt, userId) => {
   evt.preventDefault();
+  const submitButton = refs.formNewCard.querySelector(".popup__button");
+  submitButton.textContent = "Сохранение...";
+  submitButton.disabled = true;
 
   const card = {
     name: refs.cardNameInput.value,
     link: refs.urlInput.value,
   };
 
-  const newCard = createCard(card, deleteCard, handleImageClick, handleLikeClick);
-  refs.cardList.prepend(newCard);
-
-  refs.formNewCard.reset();
-  closeModal(refs.popupTypeNewCard);
+  api
+    .addCard(card)
+    .then((cardData) => {
+      const newCard = createCard(cardData, userId, handleImageClick, handleLikeClick);
+      refs.cardList.prepend(newCard);
+      refs.formNewCard.reset();
+      closeModal(refs.popupTypeNewCard);
+    })
+    .catch((err) => {
+      console.log(`Ошибка: ${err}`);
+    })
+    .finally(() => {
+      submitButton.textContent = "Сохранить";
+      submitButton.disabled = false;
+    });
 };
 
 export const handleFormProfileSubmit = (evt) => {
   evt.preventDefault();
-  refs.profileName.textContent = refs.nameInput.value;
-  refs.profileDescription.textContent = refs.jobInput.value;
-  closeModal(refs.popupTypeEdit);
+  const submitButton = refs.formEdit.querySelector(".popup__button");
+  submitButton.textContent = "Сохранение...";
+  submitButton.disabled = true;
+
+  const userInfo = {
+    name: refs.nameInput.value,
+    about: refs.jobInput.value,
+  };
+
+  api
+    .editUserInfo(userInfo)
+    .then((user) => {
+      refs.profileName.textContent = user.name;
+      refs.profileDescription.textContent = user.about;
+      closeModal(refs.popupTypeEdit);
+    })
+    .catch((err) => {
+      console.log(`Ошибка: ${err}`);
+    })
+    .finally(() => {
+      submitButton.textContent = "Сохранить";
+      submitButton.disabled = false;
+    });
+};
+
+export const handleFormAvatarSubmit = (evt) => {
+  evt.preventDefault();
+  const submitButton = refs.formUpdateAvatar.querySelector(".popup__button");
+  submitButton.textContent = "Сохранение...";
+  submitButton.disabled = true;
+
+  const avatarUrl = refs.avatarInput.value;
+
+  api
+    .updateAvatar(avatarUrl)
+    .then((user) => {
+      refs.profileImage.style.backgroundImage = `url(${user.avatar})`;
+      refs.formUpdateAvatar.reset();
+      closeModal(refs.popupTypeUpdateAvatar);
+    })
+    .catch((err) => {
+      console.log(`Ошибка: ${err}`);
+    })
+    .finally(() => {
+      submitButton.textContent = "Сохранить";
+      submitButton.disabled = false;
+    });
+};
+
+export const handleDeleteCardClick = () => {
+  if (state.cardItem && state.cardID) {
+    deleteCard(state.cardItem, state.cardID);
+  }
+};
+
+export const handleAvatarClick = () => {
+  refs.formUpdateAvatar.reset();
+  openModal(refs.popupTypeUpdateAvatar);
+  clearValidation(refs.formUpdateAvatar, validationConfig);
 };
 
 export const handleImageClick = ({ name, link }) => {
@@ -37,11 +110,14 @@ export const handleEditButtonClick = () => {
   refs.jobInput.value = refs.profileDescription.textContent;
 
   openModal(refs.popupTypeEdit);
+  clearValidation(refs.formEdit, validationConfig);
+  validateFormOnOpen(refs.formEdit, validationConfig);
 };
 
 export const handleAddButtonClick = () => {
   refs.formNewCard.reset();
   openModal(refs.popupTypeNewCard);
+  clearValidation(refs.formNewCard, validationConfig);
 };
 
 export const handleCloseButtonClick = (evt) => {

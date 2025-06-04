@@ -1,0 +1,53 @@
+.popup__input.popup__input_type_error {
+  position: relative;
+  display: block;
+  border-bottom: 1px solid #ff0000;
+}
+
+.popup__error {
+  position: absolute;
+  top: calc(100% + 3px);
+  left: 0;
+  z-index: 20;
+  opacity: 0;
+  overflow: hidden;
+  color: #f00;
+  font-size: 12px;
+  text-overflow: ellipsis;
+  transition: opacity 0.3s ease;
+  cursor: help;
+  max-inline-size: 100%;
+  white-space: nowrap;
+}
+
+.popup__error::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 10;
+  border-radius: 4px;
+  padding: 0;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+  opacity: 0;
+  color: #f00;
+  font-size: 12px;
+  background-color: #fff;
+  transition: opacity 0.2s ease;
+  pointer-events: none;
+  white-space: normal;
+  inline-size: 100%;
+}
+
+.popup__error:hover::after {
+  opacity: 1;
+}
+
+.popup__error:hover {
+  overflow: visible;
+  white-space: wrap;
+}
+
+.popup__error_visible {
+  opacity: 1;
+}
