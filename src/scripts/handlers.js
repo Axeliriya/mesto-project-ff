@@ -1,5 +1,5 @@
 import { api } from "./api.js";
-import { createCard, deleteCard, handleLikeClick } from "./card.js";
+import { createCard, removeCard, handleLikeClick } from "./card.js";
 import { openModal, closeModal } from "./modal.js";
 import refs from "./refs.js";
 import { clearValidation, validateFormOnOpen } from "./validation.js";
@@ -20,9 +20,16 @@ export const handleFormNewCardSubmit = (evt, userId) => {
   api
     .addCard(card)
     .then((cardData) => {
-      const newCard = createCard(cardData, userId, handleImageClick, handleLikeClick);
+      const newCard = createCard(
+        cardData,
+        userId,
+        openDeleteCardModal,
+        handleImageClick,
+        handleLikeClick
+      );
       refs.cardList.prepend(newCard);
       refs.formNewCard.reset();
+      clearValidation(refs.formNewCard, validationConfig);
       closeModal(refs.popupTypeNewCard);
     })
     .catch((err) => {
@@ -86,9 +93,32 @@ export const handleFormAvatarSubmit = (evt) => {
 };
 
 export const handleDeleteCardClick = () => {
-  if (state.cardItem && state.cardID) {
-    deleteCard(state.cardItem, state.cardID);
-  }
+  if (!state.delete.cardItem || !state.delete.cardID) return;
+
+  refs.deleteCardButton.textContent = "Удаление...";
+  refs.deleteCardButton.disabled = true;
+
+  api
+    .deleteCard(state.delete.cardID)
+    .then(() => {
+      removeCard(state.delete.cardItem);
+      closeModal(refs.popupTypeDeleteCard);
+      state.delete.cardItem = null;
+      state.delete.cardID = null;
+    })
+    .catch((err) => {
+      console.log(`Ошибка: ${err}`);
+    })
+    .finally(() => {
+      refs.deleteCardButton.textContent = "Да";
+      refs.deleteCardButton.disabled = false;
+    });
+};
+
+export const openDeleteCardModal = (cardItem, cardId) => {
+  state.delete.cardItem = cardItem;
+  state.delete.cardID = cardId;
+  openModal(refs.popupTypeDeleteCard);
 };
 
 export const handleAvatarClick = () => {
@@ -115,9 +145,7 @@ export const handleEditButtonClick = () => {
 };
 
 export const handleAddButtonClick = () => {
-  refs.formNewCard.reset();
   openModal(refs.popupTypeNewCard);
-  clearValidation(refs.formNewCard, validationConfig);
 };
 
 export const handleCloseButtonClick = (evt) => {

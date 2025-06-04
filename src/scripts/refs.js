@@ -1,4 +1,6 @@
 const refs = {
+  cardTemplate: document.querySelector("#card-template").content,
+
   cardList: document.querySelector(".places__list"),
 
   popupTypeEdit: document.querySelector(".popup_type_edit"),

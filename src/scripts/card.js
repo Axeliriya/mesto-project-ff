@@ -1,16 +1,14 @@
 import { api } from "./api";
-import { closeModal, openModal } from "./modal";
 import refs from "./refs";
-import { state } from "./state";
 
 export const createCard = (
   { name, link, likes, owner, _id },
   userId,
+  onDelete,
   onImageClick,
   onLike
 ) => {
-  const cardTemplate = document.querySelector("#card-template").content;
-  const cardItem = cardTemplate.querySelector(".places__item").cloneNode(true);
+  const cardItem = getCardTemplate();
 
   const cardImage = cardItem.querySelector(".card__image");
   const cardTitle = cardItem.querySelector(".card__title");
@@ -30,11 +28,7 @@ export const createCard = (
   if (owner._id !== userId) {
     deleteButton.style.display = "none";
   } else {
-    deleteButton.addEventListener("click", () => {
-      state.cardItem = cardItem;
-      state.cardID = _id;
-      openModal(refs.popupTypeDeleteCard);
-    });
+    deleteButton.addEventListener("click", () => onDelete(cardItem, _id));
   }
 
   cardImage.addEventListener("click", () => onImageClick({ name, link }));
@@ -43,25 +37,8 @@ export const createCard = (
   return cardItem;
 };
 
-export const deleteCard = (card, cardId) => {
-  refs.deleteCardButton.textContent = "Удаление...";
-  refs.deleteCardButton.disabled = true;
-
-  api
-    .deleteCard(cardId)
-    .then(() => {
-      card.remove();
-      closeModal(refs.popupTypeDeleteCard);
-      state.delete.cardItem = null;
-      state.delete.cardID = null;
-    })
-    .catch((err) => {
-      console.log(`Ошибка: ${err}`);
-    })
-    .finally(() => {
-      refs.deleteCardButton.textContent = "Да";
-      refs.deleteCardButton.disabled = false;
-    });
+export const removeCard = (card) => {
+  card.remove();
 };
 
 export const handleLikeClick = (cardId, button, likeCount) => {
@@ -78,4 +55,8 @@ export const handleLikeClick = (cardId, button, likeCount) => {
 const updateLike = (card, button, likeCount) => {
   button.classList.toggle("card__like-button_is-active");
   likeCount.textContent = card.likes.length;
+};
+
+const getCardTemplate = () => {
+  return refs.cardTemplate.querySelector(".places__item").cloneNode(true);
 };
